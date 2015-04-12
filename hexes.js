@@ -1,6 +1,7 @@
 Xia.hex = {};
 Xia.hex.canvasHexWidth = 80;
 Xia.hex.canvasHexHeight = 70;
+Xia.hex.innerAngle = Math.atan((Xia.hex.canvasHexHeight / 2) / (Xia.hex.canvasHexWidth / 4));
 
 //not sure, should I hold the coordinates in the class or in the containing grid that I will need (or both?)
 Xia.Hex = new JS.Class({

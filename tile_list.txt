@@ -1,0 +1,33 @@
+-Multiple Hex Special Things
+Planet Image
+Tile Title
+Gate Image
+
+-Special (Layered on top of tile type)
+Mission Point
+Exploration Token (is part of other tiles)
+Buy Cubes (with many sub types)
+Sell Cubes (with many sub types)
+Spawn Point (has number for which spawn point it is)
+Mining
+
+-Tile layer
+Tile Connection Image (for laying down new tiles)
+Tile Border
+
+-Type:
+Empty
+Star (Instant Death)
+Planet (Lawful, Neutral and Outlaw)
+Gate
+
+-Border:
+Star
+Planetary Shields (Lawful, Neutral and Outlaw)
+Gate
+Nebula
+Planetary Entrance (Lawful, Neutral and Outlaw)
+
+-Hex with both Type and Border for single Hex:
+Asteroid
+Debris

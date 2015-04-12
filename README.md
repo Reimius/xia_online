@@ -1,4 +1,4 @@
-# xia_online
+# Xia Online
 Author: Paul Schroeder
 Some supporting images Provided by: Justin Adams
 

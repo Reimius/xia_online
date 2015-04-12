@@ -1,5 +1,6 @@
 # Xia Online
 Author: Paul Schroeder
+
 Some supporting images Provided by: Justin Adams
 
 Simple space board game implementation of the Xia board game (Publisher: http://www.faroffgames.com/) by Cody Miller

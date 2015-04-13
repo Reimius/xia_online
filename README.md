@@ -7,6 +7,4 @@ Simple space board game implementation of the Xia board game (Publisher: http://
 
 Most images are copyright of Far Off Games, please see their main site for License information.
 
-Do not use any images without express permission.
-
 To run, just download the whole project and open game.html in Google Chrome

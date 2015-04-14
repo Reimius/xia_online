@@ -326,8 +326,36 @@ Xia.Tile = new JS.Class({
 			c2.arc(x + deltas.x,y + deltas.y, (Xia.hex.canvasHexHeight / 20),0*Math.PI,2*Math.PI);
 			c2.stroke();
 		},
-		"5" : function(){},
-		"6" : function(){}
+		"5" : function(x, y, rotations){
+			var c2 = Xia.canvas.c2;
+			c2.beginPath();
+			c2.moveTo(x, y);
+			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
+			c2.lineTo(x + deltas.x, y + deltas.y);
+			c2.strokeStyle = "#FFFF00";
+			deltas = Xia.rotateAroundOrigin((Xia.hex.canvasHexHeight / 20), (Xia.hex.canvasHexHeight / 6), rotations);
+			c2.moveTo(x + deltas.x, y + deltas.y);
+			deltas = Xia.rotateAroundOrigin(-(Xia.hex.canvasHexHeight / 20), (Xia.hex.canvasHexHeight / 6), rotations);
+			c2.lineTo(x + deltas.x, y + deltas.y);
+			deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 4), rotations);
+			c2.lineTo(x + deltas.x, y + deltas.y);
+			c2.closePath();
+			c2.stroke();
+		},
+		"6" : function(x, y, rotations){
+			var c2 = Xia.canvas.c2;
+			c2.beginPath();
+			c2.moveTo(x, y);
+			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
+			c2.lineTo(x + deltas.x, y + deltas.y);
+			c2.strokeStyle = "#FFFF00";
+			c2.closePath();
+			c2.stroke();
+			c2.beginPath();
+			deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6) + (Xia.hex.canvasHexHeight / 20), rotations);
+			c2.arc(x + deltas.x,y + deltas.y, (Xia.hex.canvasHexHeight / 20), ((6 + (2 * rotations))/6) * Math.PI, ((12 + (2 * rotations))/ 6) * Math.PI);
+			c2.stroke();
+		}
 	},
 	
 	getSymbolOffset: function(location){

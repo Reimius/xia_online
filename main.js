@@ -144,7 +144,7 @@ Xia.createRollOutcomeGridDisplay = function(headerText, items){
 
 //this function will shuffle all arrays that are supposed to be random at the start of the game
 Xia.shuffleThings = function(){
-	
+	Xia.explorationTokens.createStack();
 };
 
 Xia.createPlayers = function(playerCount){
@@ -231,6 +231,8 @@ $(document).ready(function(){
 	//Xia.gameStart();
 	
 	Xia.canvas.renderCanvas();
+	
+	
 	
 	//Xia.createShipTest();
 	

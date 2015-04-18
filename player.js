@@ -1,5 +1,12 @@
 Xia.player = {};
 Xia.player.allPlayers = [];
+Xia.player.colorOptions = [
+	"BLACK",
+	"BLUE",
+	"GREEN",
+	"RED",
+	"YELLOW"
+];
 
 Xia.player.Player = new JS.Class({
 	

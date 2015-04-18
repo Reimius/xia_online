@@ -2,6 +2,20 @@ Xia.hex = {};
 Xia.hex.canvasHexWidth = 80;
 Xia.hex.canvasHexHeight = 70;
 Xia.hex.innerAngle = Math.atan((Xia.hex.canvasHexHeight / 2) / (Xia.hex.canvasHexWidth / 4));
+//an array of the all the Hexes, this is currently used for each frame of the canvas to redraw them
+Xia.allHex = [];
+
+Xia.getInnerAngleXY = function(hypotenuseRatio){
+	
+	var normalHypotenuseLength = Math.sqrt(Math.pow(Xia.hex.canvasHexWidth / 4, 2) + Math.pow(Xia.hex.canvasHexHeight / 2, 2));//Pythagorean formula
+	var hypotenuseLength = normalHypotenuseLength * hypotenuseRatio;
+	var y = Math.sin(Xia.hex.innerAngle) * hypotenuseLength;
+	var x = Math.cos(Xia.hex.innerAngle) * hypotenuseLength;
+	return {
+		x: x,
+		y: y
+	};
+}
 
 //not sure, should I hold the coordinates in the class or in the containing grid that I will need (or both?)
 Xia.Hex = new JS.Class({
@@ -13,6 +27,7 @@ Xia.Hex = new JS.Class({
 	canvasX: null,
 	canvasY: null,
 	type: "EMPTY",
+	alignment: null,
 	
 	//the center shift is for where the very center tile will be placed coordinates 0,0
 	centerShiftX: null,
@@ -20,12 +35,23 @@ Xia.Hex = new JS.Class({
 	canvasHexWidth: 80,
 	canvasHexHeight: 70,
 	
-	borderType: null,
-	
 	borderConfig: null,
 	
 	colorMap: {
-		"ASTEROID": "#FF7F24"
+		"ASTEROID": "#FF7F24",
+		"NEBULA": "#FF0066",
+		"STAR": "#E60000",
+		"DEBRIS": "#FFFF00"
+	},
+	alignmentColorMap: {
+		"OUTLAW": "#CC2900",
+		"NEUTRAL": "#00A100",
+		"LAWFUL": "#00B8E6"
+	},
+	alignmentBackgroundColorMap: {
+		"OUTLAW": "#CC2900",
+		"NEUTRAL": "#002600",
+		"LAWFUL": "#00B8E6"
 	},
 	cubeColorMap: {
 		"S": "#FF8000",
@@ -37,23 +63,23 @@ Xia.Hex = new JS.Class({
 	
 	specialType: null,
 	spawnNumber: null,
-	miningCube: null,
+	availableCube: null,
 	
 	initialize: function(config) {
 		var me = this;
 		me.x = config.x;
 		me.y = config.y;
+		me.type = config.type;
+		me.alignment = config.alignment;
 		me.specialType = config.specialType;
 		me.spawnNumber = config.spawnNumber;
-		me.miningCube = config.miningCube;
+		me.availableCube = config.availableCube;
 		
 		me.canvasX = (me.x * (Xia.hex.canvasHexWidth * .75));
 		me.canvasY = (me.y * Xia.hex.canvasHexHeight) + ((Math.abs(me.x % 2) == 1) ? (Xia.hex.canvasHexHeight / 2) : 0);
 		
-		if(config.type == "ASTEROID")
+		if(config.type == "ASTEROID" || me.type == "DEBRIS")
 		{
-			me.type = "ASTEROID";
-			me.borderType = "ASTEROID";
 			me.borderConfig = {
 				t:  true,
 				tr: true,
@@ -63,6 +89,8 @@ Xia.Hex = new JS.Class({
 				tl: true
 			};
 		}
+		else
+			me.borderConfig = config.borderConfig;
 		
 		Xia.allHex.push(me);//add to the global array of all hexes to be rendered :P
     },
@@ -86,7 +114,7 @@ Xia.Hex = new JS.Class({
 	},
 	
 	//the actual render to the canvas
-	render: function(){
+	renderInitial: function(){
 		var me = this;
 		if(!me.centerShiftX)
 			me.setCenterShiftCoordinates();
@@ -98,6 +126,13 @@ Xia.Hex = new JS.Class({
 	
 		c2.lineWidth = 1;
 		c2.fillStyle = me.backgroundColor;
+		if(me.type == "NEBULA")
+			c2.fillStyle = "#330014";
+		else if(me.type == "STAR")
+			c2.fillStyle = "#530000";
+		else if(me.type == "PLANET")
+			c2.fillStyle = me.alignmentBackgroundColorMap[me.alignment];
+		
 		c2.strokeStyle = me.baseBorderColor;
 		c2.beginPath();
 		c2.moveTo(x + (Xia.hex.canvasHexWidth / 2), y);
@@ -107,9 +142,13 @@ Xia.Hex = new JS.Class({
 		c2.lineTo(x - (Xia.hex.canvasHexWidth / 4), y - (Xia.hex.canvasHexHeight / 2));
 		c2.lineTo(x + (Xia.hex.canvasHexWidth / 4), y - (Xia.hex.canvasHexHeight / 2));
 		c2.closePath();
+		c2.globalAlpha = .8;
 		c2.fill();
 		c2.stroke();
-		
+	},
+	
+	renderFinal: function(){
+		var me = this;
 		me.renderBorder();
 		me.renderSpecialType();
 	},
@@ -119,29 +158,45 @@ Xia.Hex = new JS.Class({
 		var c2 = Xia.canvas.c2,
 			centerSpot = me.getHexCenterCoordinates(),
 			x = centerSpot.x,
-			y = centerSpot.y;
+			y = centerSpot.y,
+			bigDelta = 0,
+			smallDelta = 0,
+			yDelta = 0,
+			innerX = (Xia.hex.canvasHexWidth / 4),
+			outerX = (Xia.hex.canvasHexWidth / 2),
+			deltaY = (Xia.hex.canvasHexHeight / 2);
 		
 		if(me.borderConfig)
 		{
-			var borderColor = me.colorMap[me.borderType];
+			if(me.type == "ASTEROID" || me.type == "DEBRIS")
+			{
+				deltaY = deltaY * .8;
+				outerX = outerX * .8;
+				innerX = Xia.getInnerAngleXY(.8).x;
+			}
+			
+			var borderColor = me.colorMap[me.type];
+			if(me.type == "PLANET")
+				borderColor = me.alignmentColorMap[me.alignment];
+			
 			var borderConfig = me.borderConfig;
 			
 			c2.beginPath();
-			c2.lineWidth = 2;
+			c2.lineWidth = 4;
 			c2.strokeStyle = borderColor;
-			c2.moveTo(x + (Xia.hex.canvasHexWidth / 2) - 8, y);
+			c2.moveTo(x + outerX, y);
 			var whatToDo = me.whichFunctionForBorder(borderConfig.br);
-			c2[whatToDo](x + (Xia.hex.canvasHexWidth / 4) - 4, y + (Xia.hex.canvasHexHeight / 2) - 7);
+			c2[whatToDo](x + innerX, y + deltaY);
 			whatToDo = me.whichFunctionForBorder(borderConfig.b);
-			c2[whatToDo](x - (Xia.hex.canvasHexWidth / 4)+ 4, y + (Xia.hex.canvasHexHeight / 2) - 7);
+			c2[whatToDo](x - innerX, y + deltaY);
 			whatToDo = me.whichFunctionForBorder(borderConfig.bl);
-			c2[whatToDo](x - (Xia.hex.canvasHexWidth / 2) + 8, y);
+			c2[whatToDo](x - outerX, y);
 			whatToDo = me.whichFunctionForBorder(borderConfig.tl);
-			c2[whatToDo](x - (Xia.hex.canvasHexWidth / 4) + 4, y - (Xia.hex.canvasHexHeight / 2) + 7);
+			c2[whatToDo](x - innerX, y - deltaY);
 			whatToDo = me.whichFunctionForBorder(borderConfig.t);
-			c2[whatToDo](x + (Xia.hex.canvasHexWidth / 4) - 4, y - (Xia.hex.canvasHexHeight / 2) + 7);
+			c2[whatToDo](x + innerX, y - deltaY);
 			whatToDo = me.whichFunctionForBorder(borderConfig.tr);
-			c2[whatToDo](x + (Xia.hex.canvasHexWidth / 2) - 8, y);
+			c2[whatToDo](x + outerX, y);
 			c2.stroke();
 		}
 		
@@ -154,13 +209,14 @@ Xia.Hex = new JS.Class({
 			centerSpot = me.getHexCenterCoordinates(),
 			x = centerSpot.x,
 			y = centerSpot.y;
+			
+		c2.lineWidth = 2;
 		
 		//these branches handle rendering the special type of hexes which allow user interaction
 		if(specialType == "MISSION")
 		{
 			//draw a triangle with an exclamation point in it
 			c2.beginPath();
-			c2.lineWidth = 2;
 			c2.strokeStyle = "#FFFF00";
 			c2.moveTo(x, y + (Xia.hex.canvasHexHeight / 4));
 			c2.lineTo(x + (Xia.hex.canvasHexWidth / 4), y - (Xia.hex.canvasHexHeight / 4));
@@ -205,9 +261,37 @@ Xia.Hex = new JS.Class({
 		else if(specialType == "BUY")
 		{
 			
+			var text = "Buy";
+			c2.fillStyle = "#FFFFFF";
+			var fontSize = Xia.canvas.getTextSizeByWidth(text, Xia.hex.canvasHexWidth / 3);
+			c2.font = fontSize + "px arial";
+			var textWidth = c2.measureText(text).width;
+			c2.fillText(text, x - (textWidth / 2), y - (Xia.hex.canvasHexHeight / 4));
+			textWidth = c2.measureText("1000 CR").width;
+			c2.fillText("1000 CR", x - (textWidth / 2), y);
+			textWidth = c2.measureText("2x P").width;
+			c2.fillText("2x ", x - (textWidth / 2), y + (Xia.hex.canvasHexHeight / 4));
+			var textWidthWithLess = c2.measureText("2x ").width;
+			c2.fillStyle = me.cubeColorMap[me.availableCube];
+			c2.fillText(me.availableCube, x - (textWidth / 2) + textWidthWithLess, y + (Xia.hex.canvasHexHeight / 4));
+			
 		}
 		else if(specialType == "SELL")
 		{
+			
+			var text = "Sell";
+			c2.fillStyle = "#FFFFFF";
+			var fontSize = Xia.canvas.getTextSizeByWidth(text, Xia.hex.canvasHexWidth / 3);
+			c2.font = fontSize + "px arial";
+			var textWidth = c2.measureText(text).width;
+			c2.fillText(text, x - (textWidth / 2), y - (Xia.hex.canvasHexHeight / 4));
+			textWidth = c2.measureText("1000 CR").width;
+			c2.fillText("1000 CR", x - (textWidth / 2), y);
+			textWidth = c2.measureText("2x P").width;
+			c2.fillText("1x ", x - (textWidth / 2), y + (Xia.hex.canvasHexHeight / 4));
+			var textWidthWithLess = c2.measureText("2x ").width;
+			c2.fillStyle = me.cubeColorMap[me.availableCube];
+			c2.fillText(me.availableCube, x - (textWidth / 2) + textWidthWithLess, y + (Xia.hex.canvasHexHeight / 4));
 			
 		}
 		else if(specialType == "SPAWN")
@@ -220,17 +304,30 @@ Xia.Hex = new JS.Class({
 			var spNumberWidth = c2.measureText(me.spawnNumber).width;
 			c2.fillText(me.spawnNumber, x - (spNumberWidth / 2), y + (Xia.hex.canvasHexHeight / 6));
 		}
-		else if(specialType == "MINING")
+		else if(specialType == "MINING" || specialType == "HARVEST" || specialType == "SALVAGE")
 		{
+			var text = "Mining";
+			var oneToTen = "D";//D for damage
+			if(specialType == "HARVEST")
+			{
+				text = "Harvest";
+				oneToTen = "E";//E for energy
+			}
+			else if(specialType == "SALVAGE")
+			{
+				text = "Salvage";
+				oneToTen = "T";//T for Death (Termination since D is already used)
+			}
+			
 			c2.fillStyle = "#FFFFFF";
-			var fontSize = Xia.canvas.getTextSizeByWidth("Mining", Xia.hex.canvasHexWidth / 2);
+			var fontSize = Xia.canvas.getTextSizeByWidth(text, Xia.hex.canvasHexWidth / 2);
 			c2.font = fontSize + "px arial";
-			var spWidth = c2.measureText("Mining").width;
-			c2.fillText("Mining", x - (Xia.hex.canvasHexWidth / 4) + 2, y - (Xia.hex.canvasHexHeight / 4));
-			c2.fillText("1-10 = D", x - (Xia.hex.canvasHexWidth / 3) + 2, y);
+			var spWidth = c2.measureText(text).width;
+			c2.fillText(text, x - (Xia.hex.canvasHexWidth / 4) + 2, y - (Xia.hex.canvasHexHeight / 4));
+			c2.fillText("1-10 = " + oneToTen, x - (Xia.hex.canvasHexWidth / 3) + 2, y);
 			c2.fillText("11-20 = ", x - (Xia.hex.canvasHexWidth / 3) -2, y + (Xia.hex.canvasHexHeight / 4));
-			c2.fillStyle = me.cubeColorMap[me.miningCube];
-			c2.fillText(me.miningCube, x - (Xia.hex.canvasHexWidth / 3) - 2 + c2.measureText("11-20 = ").width, y + (Xia.hex.canvasHexHeight / 4));
+			c2.fillStyle = me.cubeColorMap[me.availableCube];
+			c2.fillText(me.availableCube, x - (Xia.hex.canvasHexWidth / 3) - 2 + c2.measureText("11-20 = ").width, y + (Xia.hex.canvasHexHeight / 4));
 		}
 		
 		//else do nothing
@@ -247,6 +344,3 @@ Xia.Hex = new JS.Class({
 	}
 	
 });
-
-//an array of the all the Hexes, this is currently used for each frame of the canvas to redraw them
-Xia.allHex = [];

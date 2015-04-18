@@ -66,12 +66,12 @@ Xia.canvas.renderCanvas = function(){
 		Xia.canvas.mouseIsDown = false;
 	});
 
-	if(Xia.canvas.canvas[0].getContext )
+	if(Xia.canvas.canvas[0].getContext)
     {
         Xia.canvas.c2 = Xia.canvas.canvas[0].getContext('2d');
 		
-		new Xia.Outpost338({x:0, y:0});//0,0
-		new Xia.RedGulch({x:-1, y:0, rotations: 5});//-1, 0
+		new Xia.tile.DoravinV({x:0, y:0});//0,0
+		new Xia.tile.DoravinV({x:-1, y:0, rotations: 5});//-1, 0
 		
 		Xia.canvas.drawCanvasFrame();
     }
@@ -79,16 +79,19 @@ Xia.canvas.renderCanvas = function(){
 
 Xia.canvas.drawCanvasFrame = function(){
 	
-	//Xia.canvas.c2.fillStyle="#363636";
-	//Xia.canvas.c2.fillRect(0,0,Xia.canvas.canvas[0].width, Xia.canvas.canvas[0].height);
-	
-	
 	Xia.canvas.c2.drawImage(Xia.canvas.backgroundImage, 0, 0, Xia.canvas.canvas[0].width, Xia.canvas.canvas[0].height);
 	
+	var activeHexes = Xia.allHex;
+	for(var i = 0; i < activeHexes.length; i++)
+		activeHexes[i].renderInitial();//draw all hex "background" stuff
 	
-	var allTiles = Xia.tile.allTiles;
-	for(var i = 0; i < allTiles.length; i++)
-		allTiles[i].render();//draw all Hexes that exist in the configuration array
+	var activeHexes = Xia.allHex;
+	for(var i = 0; i < activeHexes.length; i++)
+		activeHexes[i].renderFinal();//draw all hex "foreground" stuff
+	
+	var activeTiles = Xia.tile.activeTiles;
+	for(var i = 0; i < activeTiles.length; i++)
+		activeTiles[i].render();//draw all render material at the tile level
 	
 	setTimeout(Xia.canvas.drawCanvasFrame, 30);
 };

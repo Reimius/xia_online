@@ -1,5 +1,5 @@
 Xia.tile = {};
-Xia.tile.allTiles = [];
+Xia.tile.activeTiles = [];
 
 Xia.rotateAroundOrigin = function(x, y, steps){
 	xp = (x * Math.cos(Math.PI * steps / 3)) - (y * Math.sin(Math.PI * steps / 3));
@@ -64,7 +64,7 @@ Xia.Tile = new JS.Class({
 			me.hexesByTileLocation[tileHexX + "_" + tileHexY] = newHex;
 		}
 		
-		Xia.tile.allTiles.push(me);
+		Xia.tile.activeTiles.push(me);
 		
 	},
 	
@@ -218,6 +218,26 @@ Xia.Tile = new JS.Class({
 					if(!(hexConfig.x == 0 && hexConfig.y == 0))
 						throw "hex missed";
 				}
+				
+				//need to rotate border config object in hexes that have it
+				if(hexConfig.borderConfig)
+				{
+					var borderConfig = hexConfig.borderConfig;
+					var tr = borderConfig.t,
+						br = borderConfig.tr,
+						b = borderConfig.br,
+						bl = borderConfig.b,
+						tl = borderConfig.bl,
+						t = borderConfig.tl;
+					hexConfig.borderConfig = {
+						tr: tr,
+						br: br,
+						b:  b,
+						bl: bl,
+						tl: tl,
+						t:  t
+					};
+				}
 
 			}
 			//shift the connection symbol array
@@ -240,9 +260,6 @@ Xia.Tile = new JS.Class({
 		var me = this;
 		
 		//render backgroung things such as the planets and sun
-		
-		for(var i = 0; i < me.hexes.length; i++)
-			me.hexes[i].render();
 		
 		//this is going to render some tile based attributes, such as connection symbols and the tile's name
 		me.renderConnectionSymbols();
@@ -272,6 +289,7 @@ Xia.Tile = new JS.Class({
 	symbolRenderFunctionHash: {
 		"1" : function(x, y, rotations){
 			var c2 = Xia.canvas.c2;
+			c2.lineWidth = 2;
 			c2.beginPath();
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
@@ -282,6 +300,7 @@ Xia.Tile = new JS.Class({
 		},
 		"2" : function(x, y, rotations){
 			var c2 = Xia.canvas.c2;
+			c2.lineWidth = 2;
 			c2.beginPath();
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
@@ -296,6 +315,7 @@ Xia.Tile = new JS.Class({
 		},
 		"3" : function(x, y, rotations){
 			var c2 = Xia.canvas.c2;
+			c2.lineWidth = 2;
 			c2.beginPath();
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
@@ -314,6 +334,7 @@ Xia.Tile = new JS.Class({
 		},
 		"4" : function(x, y, rotations){
 			var c2 = Xia.canvas.c2;
+			c2.lineWidth = 2;
 			c2.beginPath();
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
@@ -328,6 +349,7 @@ Xia.Tile = new JS.Class({
 		},
 		"5" : function(x, y, rotations){
 			var c2 = Xia.canvas.c2;
+			c2.lineWidth = 2;
 			c2.beginPath();
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
@@ -344,6 +366,7 @@ Xia.Tile = new JS.Class({
 		},
 		"6" : function(x, y, rotations){
 			var c2 = Xia.canvas.c2;
+			c2.lineWidth = 2;
 			c2.beginPath();
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
@@ -376,11 +399,14 @@ Xia.Tile = new JS.Class({
 		}
 	}
 	
-	
-	
 });
 
-Xia.Outpost338 = new JS.Class(Xia.Tile, {
+//returns the new tile class instance
+Xia.tile.placeTileNextToExisting = function(existingTile, x, y){
+	
+};
+
+Xia.tile.Outpost338 = new JS.Class(Xia.Tile, {
 	
 	hexConfigs: [
 		{
@@ -415,7 +441,7 @@ Xia.Outpost338 = new JS.Class(Xia.Tile, {
 			x:-1,
 			y:-1,
 			specialType: "MINING",
-			miningCube: "S"
+			availableCube: "S"
 		},
 		{
 			x:0,
@@ -478,14 +504,14 @@ Xia.Outpost338 = new JS.Class(Xia.Tile, {
 	
 });
 
-Xia.RedGulch = new JS.Class(Xia.Tile, {
+Xia.tile.RedGulch = new JS.Class(Xia.Tile, {
 	
 	hexConfigs: [
 		{
 			x:0,
 			y:0,
 			specialType: "MINING",
-			miningCube: "T"
+			availableCube: "T"
 		},
 		{
 			x:0,
@@ -573,3 +599,1353 @@ Xia.RedGulch = new JS.Class(Xia.Tile, {
 	]
 	
 });
+
+Xia.tile.Tk421 = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			specialType: "MISSION"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "ASTEROID"
+		},
+		{
+			x:1,
+			y:-1
+		},
+		{
+			x:1,
+			y:0,
+			type: "ASTEROID"
+		},
+		{
+			x:0,
+			y:1,
+			type: "ASTEROID"
+		},
+		{
+			x:-1,
+			y:0,
+			type: "ASTEROID"
+		},
+		{
+			x:-1,
+			y:-1
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2,
+			type: "ASTEROID"
+		},
+		{
+			x:2,
+			y:-1,
+			type: "ASTEROID"
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1,
+			specialType: "SPAWN",
+			spawnNumber: 7
+		},
+		{
+			x:-2,
+			y:1
+		},
+		{
+			x:-2,
+			y:0,
+			type: "ASTEROID",
+			specialType: "EXPLORE"
+		},
+		{
+			x:-2,
+			y:-1
+		},
+		{
+			x:-1,
+			y:-2
+		}
+	]
+	
+});
+
+Xia.tile.BurningHorse = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "NEBULA",
+			borderConfig: {
+				bl: true
+			}
+		},
+		{
+			x:0,
+			y:-1,
+			type: "NEBULA"
+		},
+		{
+			x:1,
+			y:-1,
+			type: "NEBULA",
+			specialType: "HARVEST",
+			availableCube: "H"
+		},
+		{
+			x:1,
+			y:0,
+			type: "NEBULA"
+		},
+		{
+			x:0,
+			y:1,
+			type: "NEBULA",
+			borderConfig: {
+				b: true,
+				tl: true
+			}
+		},
+		{
+			x:-1,
+			y:0
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "NEBULA",
+			borderConfig: {
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:0,
+			y:-2,
+			type: "NEBULA",
+			borderConfig: {
+				tl: true,
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:1,
+			y:-2,
+			type: "NEBULA",
+			borderConfig: {
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:2,
+			y:-1,
+			specialType: "MISSION",
+			type: "NEBULA",
+			borderConfig: {
+				t: true,
+				tr: true,
+				br: true
+			}
+		},
+		{
+			x:2,
+			y:0,
+			type: "NEBULA",
+			borderConfig: {
+				tr: true,
+				br: true
+			}
+		},
+		{
+			x:2,
+			y:1,
+			type: "NEBULA",
+			borderConfig: {
+				tr: true,
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:1,
+			y:1,
+			type: "NEBULA",
+			specialType: "EXPLORE",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1,
+			type: "NEBULA",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true,
+				tl: true,
+				t: true
+			}
+		},
+		{
+			x:-2,
+			y:1
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1,
+			specialType: "SPAWN",
+			spawnNumber: 13
+		},
+		{
+			x:-1,
+			y:-2,
+			type: "NEBULA",
+			borderConfig: {
+				bl: true,
+				tl: true,
+				t: true
+			}
+		}
+	]
+	
+});
+
+Xia.tile.LowerStratus = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "NEBULA",
+			specialType: "HARVEST",
+			availableCube: "P"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "NEBULA"
+		},
+		{
+			x:1,
+			y:-1,
+			type: "NEBULA",
+			borderConfig: {
+				br: true,
+				tr: true
+			}
+		},
+		{
+			x:1,
+			y:0,
+			type: "NEBULA",
+			borderConfig: {
+				br: true,
+				tr: true,
+				b: true
+			}
+		},
+		{
+			x:0,
+			y:1,
+			type: "NEBULA",
+			borderConfig: {
+				b: true,
+				br: true
+			}
+		},
+		{
+			x:-1,
+			y:0,
+			type: "NEBULA",
+			specialType: "EXPLORE"
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "NEBULA"
+		},
+		{
+			x:0,
+			y:-2,
+			type: "NEBULA",
+			borderConfig: {
+				tl: true,
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:1,
+			y:-2,
+			type: "NEBULA",
+			borderConfig: {
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:2,
+			y:-1
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1,
+			specialType: "SPAWN",
+			spawnNumber: 14
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1,
+			type: "NEBULA",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-2,
+			y:1,
+			type: "NEBULA",
+			borderConfig: {
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-2,
+			y:0,
+			type: "NEBULA",
+			borderConfig: {
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-2,
+			y:-1,
+			type: "NEBULA",
+			specialType: "MISSION",
+			borderConfig: {
+				t: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-1,
+			y:-2,
+			type: "NEBULA",
+			borderConfig: {
+				tl: true,
+				t: true
+			}
+		}
+	]
+	
+});
+
+Xia.tile.Vortex86 = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "NEBULA",
+			specialType: "MISSION"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "NEBULA",
+			borderConfig: {
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:1,
+			y:-1,
+			type: "NEBULA",
+			borderConfig: {
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:1,
+			y:0,
+			type: "NEBULA",
+			borderConfig: {
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:0,
+			y:1,
+			type: "NEBULA",
+			borderConfig: {
+				b: true,
+				br: true
+			}
+		},
+		{
+			x:-1,
+			y:0,
+			type: "NEBULA",
+			borderConfig: {
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "NEBULA",
+			borderConfig: {
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1,
+			specialType: "SPAWN",
+			spawnNumber: 12
+		},
+		{
+			x:2,
+			y:0,
+			type: "NEBULA",
+			specialType: "EXPLORE",
+			borderConfig: {
+				b: true,
+				br: true,
+				tr: true,
+				t: true
+			}
+		},
+		{
+			x:2,
+			y:1
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1,
+			type: "NEBULA",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-2,
+			y:1
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1
+		},
+		{
+			x:-1,
+			y:-2,
+			type: "NEBULA",
+			borderConfig: {
+				tl: true,
+				t: true,
+				bl: true,
+				tr: true
+			}
+		}
+	]
+	
+});
+
+Xia.tile.Xia = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "STAR"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "STAR"
+		},
+		{
+			x:1,
+			y:-1,
+			type: "STAR"
+		},
+		{
+			x:1,
+			y:0,
+			type: "STAR"
+		},
+		{
+			x:0,
+			y:1,
+			type: "STAR"
+		},
+		{
+			x:-1,
+			y:0,
+			type: "STAR"
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "STAR"
+		},
+		{
+			x:0,
+			y:-2,
+			type: "STAR",
+			borderConfig: {
+				tr: true,
+				t: true,
+				tl: true
+			}
+		},
+		{
+			x:1,
+			y:-2,
+			type: "STAR",
+			borderConfig: {
+				tr: true,
+				t: true
+			}
+		},
+		{
+			x:2,
+			y:-1,
+			type: "STAR",
+			borderConfig: {
+				tr: true,
+				t: true,
+				br: true
+			}
+		},
+		{
+			x:2,
+			y:0,
+			type: "STAR",
+			borderConfig: {
+				tr: true,
+				br: true
+			}
+		},
+		{
+			x:2,
+			y:1,
+			type: "STAR",
+			borderConfig: {
+				tr: true,
+				b: true,
+				br: true
+			}
+		},
+		{
+			x:1,
+			y:1,
+			type: "STAR",
+			borderConfig: {
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:0,
+			y:2,
+			type: "STAR",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-1,
+			y:1,
+			type: "STAR",
+			borderConfig: {
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-2,
+			y:1,
+			type: "STAR",
+			borderConfig: {
+				bl: true,
+				b: true,
+				tl: true
+			}
+		},
+		{
+			x:-2,
+			y:0,
+			type: "STAR",
+			borderConfig: {
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-2,
+			y:-1,
+			type: "STAR",
+			borderConfig: {
+				t: true,
+				tl: true,
+				bl: true
+			}
+		},
+		{
+			x:-1,
+			y:-2,
+			type: "STAR",
+			borderConfig: {
+				tl: true,
+				t: true
+			}
+		}
+	]
+	
+});
+
+Xia.tile.LostSector = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0
+		},
+		{
+			x:0,
+			y:-1
+		},
+		{
+			x:1,
+			y:-1
+		},
+		{
+			x:1,
+			y:0
+		},
+		{
+			x:0,
+			y:1
+		},
+		{
+			x:-1,
+			y:0
+		},
+		{
+			x:-1,
+			y:-1
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1
+		},
+		{
+			x:-2,
+			y:1
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1
+		},
+		{
+			x:-1,
+			y:-2
+		}
+	]
+});
+
+Xia.tile.KrellerIV = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			specialType: "SALVAGE",
+			availableCube: "C"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:1,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:1,
+			y:0
+		},
+		{
+			x:0,
+			y:1
+		},
+		{
+			x:-1,
+			y:0,
+			specialType: "MISSION"
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1,
+			type: "DEBRIS",
+			specialType: "EXPLORE"
+		},
+		{
+			x:1,
+			y:1,
+			type: "DEBRIS"
+		},
+		{
+			x:0,
+			y:2,
+			specialType: "SPAWN",
+			spawnNumber: 17
+		},
+		{
+			x:-1,
+			y:1,
+			type: "DEBRIS"
+		},
+		{
+			x:-2,
+			y:1,
+			type: "DEBRIS"
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1
+		},
+		{
+			x:-1,
+			y:-2
+		}
+	]
+	
+});
+
+Xia.tile.Pelmont = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0
+		},
+		{
+			x:0,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:1,
+			y:-1,
+			specialType: "SALVAGE",
+			availableCube: "C"
+		},
+		{
+			x:1,
+			y:0,
+			type: "DEBRIS"
+		},
+		{
+			x:0,
+			y:1,
+			specialType: "MISSION"
+		},
+		{
+			x:-1,
+			y:0,
+			type: "DEBRIS"
+		},
+		{
+			x:-1,
+			y:-1,
+			specialType: "SPAWN",
+			spawnNumber: 15
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1,
+			type: "DEBRIS"
+		},
+		{
+			x:1,
+			y:1,
+			type: "DEBRIS"
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1,
+			type: "DEBRIS",
+			specialType: "EXPLORE"
+		},
+		{
+			x:-2,
+			y:1,
+			type: "DEBRIS"
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:-1,
+			y:-2,
+			type: "DEBRIS"
+		}
+	]
+	
+});
+
+Xia.tile.TheKeep = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "DEBRIS"
+		},
+		{
+			x:0,
+			y:-1
+		},
+		{
+			x:1,
+			y:-1,
+			type: "DEBRIS",
+			specialType: "EXPLORE"
+		},
+		{
+			x:1,
+			y:0,
+			specialType: "SPAWN",
+			spawnNumber: 16
+		},
+		{
+			x:0,
+			y:1
+		},
+		{
+			x:-1,
+			y:0,
+			type: "DEBRIS"
+		},
+		{
+			x:-1,
+			y:-1,
+			specialType: "MISSION"
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:2,
+			y:0,
+			type: "DEBRIS"
+		},
+		{
+			x:2,
+			y:1
+		},
+		{
+			x:1,
+			y:1,
+			type: "DEBRIS"
+		},
+		{
+			x:0,
+			y:2,
+			type: "DEBRIS"
+		},
+		{
+			x:-1,
+			y:1
+		},
+		{
+			x:-2,
+			y:1
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:-1,
+			y:-2,
+			type: "DEBRIS"
+		}
+	]
+	
+});
+
+Xia.tile.NeoDamascus = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "MISSION",
+			borderConfig: {
+				tr: true,
+				t: true,
+				tl: true
+			}
+		},
+		{
+			x:1,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				tr: true,
+				t: true,
+				br: true
+			}
+		},
+		{
+			x:1,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "SELL",
+			availableCube: "S",
+			borderConfig: {
+				tr: true,
+				b: true,
+				br: true
+			}
+		},
+		{
+			x:0,
+			y:1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-1,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "BUY",
+			availableCube: "P",
+			borderConfig: {
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				bl: true,
+				t: true
+			}
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1,
+			specialType: "EXPLORE"
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1
+		},
+		{
+			x:-2,
+			y:1,
+			specialType: "SPAWN",
+			spawnNumber: 1
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1
+		},
+		{
+			x:-1,
+			y:-2
+		}
+	]
+	
+});
+
+Xia.tile.DoravinV = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "BUY",
+			availableCube: "T",
+			borderConfig: {
+				tr: true,
+				t: true,
+				tl: true
+			}
+		},
+		{
+			x:1,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "MISSION",
+			borderConfig: {
+				tr: true,
+				t: true,
+				br: true
+			}
+		},
+		{
+			x:1,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "SELL",
+			availableCube: "C",
+			borderConfig: {
+				tr: true,
+				b: true,
+				br: true
+			}
+		},
+		{
+			x:0,
+			y:1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-1,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				bl: true,
+				t: true
+			}
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2,
+			specialType: "SPAWN",
+			spawnNumber: 4
+		},
+		{
+			x:2,
+			y:-1
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1,
+			specialType: "EXPLORE"
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1
+		},
+		{
+			x:-2,
+			y:1
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1
+		},
+		{
+			x:-1,
+			y:-2
+		}
+	]
+	
+});
+
+Xia.tile.availableTiles = [
+	Xia.tile.Outpost338,
+	Xia.tile.RedGulch,
+	Xia.tile.Tk421,
+	Xia.tile.BurningHorse,
+	Xia.tile.LowerStratus,
+	Xia.tile.Vortex86,
+	Xia.tile.Xia,
+	Xia.tile.LostSector,
+	Xia.tile.KrellerIV,
+	Xia.tile.Pelmont,
+	Xia.tile.TheKeep,
+	Xia.tile.NeoDamascus,
+	Xia.tile.DoravinV
+];

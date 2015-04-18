@@ -985,7 +985,8 @@ Xia.tile.LowerStratus = new JS.Class(Xia.Tile, {
 			type: "NEBULA",
 			borderConfig: {
 				t: true,
-				tr: true
+				tr: true,
+				br: true
 			}
 		},
 		{

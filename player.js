@@ -1,4 +1,5 @@
 Xia.player = {};
+Xia.player.allPlayers = [];
 
 Xia.player.Player = new JS.Class({
 	

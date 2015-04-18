@@ -1,5 +1,6 @@
 Xia.tile = {};
 Xia.tile.activeTiles = [];
+Xia.tile.availableTiles = null;
 
 Xia.rotateAroundOrigin = function(x, y, steps){
 	xp = (x * Math.cos(Math.PI * steps / 3)) - (y * Math.sin(Math.PI * steps / 3));
@@ -38,6 +39,14 @@ Xia.Tile = new JS.Class({
 		"bl":4,
 		"tl":5
 	},
+	tileDirectionOpposites: {
+		"tr":"bl",
+		"r":"l",
+		"br":"tl",
+		"bl":"tr",
+		"l":"r",
+		"tl":"br"
+	},
 	
 	initialize: function(config){
 		
@@ -51,7 +60,7 @@ Xia.Tile = new JS.Class({
 		me.hexes = [];
 		me.hexesByTileLocation = {};
 		me.createSymbolConfig();
-		var newHexConfigs = me.getRotatedHexConfigs(config.rotations);//also creates a copy of the hex configs so we dont' mess up the original configuration
+		var newHexConfigs = me.getRotatedHexConfigs(config.rotationConfig);//also creates a copy of the hex configs so we dont' mess up the original configuration
 		for(var i = 0; i < newHexConfigs.length; i++)
 		{
 			var hexConfig = newHexConfigs[i];
@@ -119,15 +128,20 @@ Xia.Tile = new JS.Class({
 		return this.hexesByTileLocation[x + "_" + y];
 	},
 	
-	getRotatedHexConfigs: function(rotations){
+	getRotatedHexConfigs: function(rotationConfig){
 		var me = this;
 		var newHexConfigs = [];
 		for(var i = 0; i < me.hexConfigs.length; i++)
 			newHexConfigs.push(Xia.cloneObject(me.hexConfigs[i]));
-		if(!rotations)
+		if(!rotationConfig)
 			return newHexConfigs;
 		
-		for(var i = 0; i < rotations; i ++)
+		var symbolConfig = me.symbolConfig;
+		
+		var tilePlacementDirection = rotationConfig.tilePlacementDirection;
+		var tilePlacementDirectionSymbolType = rotationConfig.symbolType;
+		
+		while(symbolConfig[tilePlacementDirection].symbolType != tilePlacementDirectionSymbolType)
 		{
 			//rotate all the hexes about the origin of the tile
 			for(var j = 0; j < newHexConfigs.length; j++)
@@ -241,7 +255,6 @@ Xia.Tile = new JS.Class({
 
 			}
 			//shift the connection symbol array
-			var symbolConfig = me.symbolConfig;
 			for(var key in symbolConfig)
 			{
 				if (symbolConfig.hasOwnProperty(key)) {
@@ -250,6 +263,8 @@ Xia.Tile = new JS.Class({
 						symbolConfig[key].symbolType = 6;
 				}
 			}
+			
+			
 		}
 		
 		return newHexConfigs;
@@ -294,7 +309,7 @@ Xia.Tile = new JS.Class({
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
 			c2.lineTo(x + deltas.x, y + deltas.y);
-			c2.strokeStyle = "#FFFF00";
+			c2.strokeStyle = "#999999";
 			c2.closePath();
 			c2.stroke();
 		},
@@ -305,7 +320,7 @@ Xia.Tile = new JS.Class({
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
 			c2.lineTo(x + deltas.x, y + deltas.y);
-			c2.strokeStyle = "#FFFF00";
+			c2.strokeStyle = "#999999";
 			deltas = Xia.rotateAroundOrigin((Xia.hex.canvasHexHeight / 15), (Xia.hex.canvasHexHeight / 6), rotations);
 			c2.moveTo(x + deltas.x, y + deltas.y);
 			deltas = Xia.rotateAroundOrigin(-(Xia.hex.canvasHexHeight / 15), (Xia.hex.canvasHexHeight / 6), rotations);
@@ -320,7 +335,7 @@ Xia.Tile = new JS.Class({
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
 			c2.lineTo(x + deltas.x, y + deltas.y);
-			c2.strokeStyle = "#FFFF00";
+			c2.strokeStyle = "#999999";
 			deltas = Xia.rotateAroundOrigin((Xia.hex.canvasHexHeight / 20), (Xia.hex.canvasHexHeight / 6), rotations);
 			c2.moveTo(x + deltas.x, y + deltas.y);
 			deltas = Xia.rotateAroundOrigin(-(Xia.hex.canvasHexHeight / 20), (Xia.hex.canvasHexHeight / 6), rotations);
@@ -339,7 +354,7 @@ Xia.Tile = new JS.Class({
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
 			c2.lineTo(x + deltas.x, y + deltas.y);
-			c2.strokeStyle = "#FFFF00";
+			c2.strokeStyle = "#999999";
 			c2.closePath();
 			c2.stroke();
 			c2.beginPath();
@@ -354,7 +369,7 @@ Xia.Tile = new JS.Class({
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
 			c2.lineTo(x + deltas.x, y + deltas.y);
-			c2.strokeStyle = "#FFFF00";
+			c2.strokeStyle = "#999999";
 			deltas = Xia.rotateAroundOrigin((Xia.hex.canvasHexHeight / 20), (Xia.hex.canvasHexHeight / 6), rotations);
 			c2.moveTo(x + deltas.x, y + deltas.y);
 			deltas = Xia.rotateAroundOrigin(-(Xia.hex.canvasHexHeight / 20), (Xia.hex.canvasHexHeight / 6), rotations);
@@ -371,7 +386,7 @@ Xia.Tile = new JS.Class({
 			c2.moveTo(x, y);
 			var deltas = Xia.rotateAroundOrigin(0, (Xia.hex.canvasHexHeight / 6), rotations);
 			c2.lineTo(x + deltas.x, y + deltas.y);
-			c2.strokeStyle = "#FFFF00";
+			c2.strokeStyle = "#999999";
 			c2.closePath();
 			c2.stroke();
 			c2.beginPath();
@@ -397,6 +412,57 @@ Xia.Tile = new JS.Class({
 			x: (location.indexOf("l") != -1 ? -1 : 1) * deltaX,
 			y: (location.indexOf("t") != -1 ? -1 : 1) * deltaY
 		}
+	},
+	
+	placeConnectedTile: function(x, y){
+		
+		var me = this,
+			currentX = me.x,
+			currentY = me.y,
+			tileDirectionOpposites = me.tileDirectionOpposites;
+			
+		deltaX = x - currentX;
+		deltaY = y - currentY;
+		var placementDirection = null;
+		if(deltaX == 1)
+		{
+			if(deltaY == 0)
+				placementDirection = "r";
+			else if(deltaY = 1)
+				placementDirection = "br";
+		}
+		else if(deltaX = 0)
+		{
+			if(deltaY = 1)
+				placementDirection = "bl";
+			else if(deltaY = -1)
+				placementDirection = "tr";
+		}
+		else if(deltaX = -1)
+		{
+			if(deltaY = 0)
+				placementDirection = "l";
+			else if(deltaY = -1)
+				placementDirection = "tl";
+		}
+		if(!placementDirection)
+			throw "The new tile cannot be placed from the current tile";
+		
+		var thisTileSymbolType = me.symbolConfig[placementDirection].symbolType;
+		
+		var newTilePlacementDirection = tileDirectionOpposites[placementDirection];
+		
+		var tileClass = Xia.tile.availableTiles.pop();
+		
+		return new tileClass({
+			x: x,
+			y: y,
+			rotationConfig: {
+				tilePlacementDirection: newTilePlacementDirection,
+				symbolType: thisTileSymbolType
+			}
+		});
+		
 	}
 	
 });
@@ -1934,18 +2000,952 @@ Xia.tile.DoravinV = new JS.Class(Xia.Tile, {
 	
 });
 
-Xia.tile.availableTiles = [
-	Xia.tile.Outpost338,
-	Xia.tile.RedGulch,
-	Xia.tile.Tk421,
-	Xia.tile.BurningHorse,
-	Xia.tile.LowerStratus,
-	Xia.tile.Vortex86,
-	Xia.tile.Xia,
-	Xia.tile.LostSector,
-	Xia.tile.KrellerIV,
-	Xia.tile.Pelmont,
-	Xia.tile.TheKeep,
-	Xia.tile.NeoDamascus,
-	Xia.tile.DoravinV
-];
+Xia.tile.Azure = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				tr: true,
+				t: true
+			}
+		},
+		{
+			x:1,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				t: true,
+				br: true
+			}
+		},
+		{
+			x:1,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				tr: true,
+				b: true,
+				br: true
+			}
+		},
+		{
+			x:0,
+			y:1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "SELL",
+			availableCube: "T",
+			borderConfig: {
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:-1,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL"
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "BUY",
+			availableCube: "H"
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1
+		},
+		{
+			x:1,
+			y:1,
+			specialType: "SPAWN",
+			spawnNumber: 3
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-2,
+			y:1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "EXPLORE",
+			borderConfig: {
+				tl: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-2,
+			y:0,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				tl: true,
+				bl: true
+			}
+		},
+		{
+			x:-2,
+			y:-1,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			specialType: "MISSION",
+			borderConfig: {
+				tl: true,
+				bl: true,
+				t: true
+			}
+		},
+		{
+			x:-1,
+			y:-2,
+			type: "PLANET",
+			alignment: "NEUTRAL",
+			borderConfig: {
+				tl: true,
+				t: true,
+				tr: true
+			}
+		}
+	]
+	
+});
+
+Xia.tile.Lunari = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "PLANET",
+			alignment: "LAWFUL"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			specialType: "BUY",
+			availableCube: "C",
+			borderConfig: {
+				tr: true,
+				t: true
+			}
+		},
+		{
+			x:1,
+			y:-1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				t: true,
+				br: true
+			}
+		},
+		{
+			x:1,
+			y:0,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				tr: true,
+				b: true,
+				br: true
+			}
+		},
+		{
+			x:0,
+			y:1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			specialType: "MISSION",
+			borderConfig: {
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:-1,
+			y:0,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			specialType: "SELL",
+			availableCube: "P"
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "PLANET",
+			alignment: "LAWFUL"
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1,
+			specialType: "SPAWN",
+			spawnNumber: 6
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-2,
+			y:1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			specialType: "EXPLORE",
+			borderConfig: {
+				tl: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-2,
+			y:0,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				tl: true,
+				bl: true
+			}
+		},
+		{
+			x:-2,
+			y:-1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				tl: true,
+				bl: true,
+				t: true
+			}
+		},
+		{
+			x:-1,
+			y:-2,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				tl: true,
+				t: true,
+				tr: true
+			}
+		}
+	]
+	
+});
+
+
+Xia.tile.SmugglersDen = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "PLANET",
+			alignment: "OUTLAW",
+			borderConfig: {
+				t: true,
+				bl: true
+			}
+		},
+		{
+			x:0,
+			y:-1,
+			type: "ASTEROID"
+		},
+		{
+			x:1,
+			y:-1,
+			type: "PLANET",
+			alignment: "OUTLAW",
+			borderConfig: {
+				tl: true,
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:1,
+			y:0,
+			type: "PLANET",
+			alignment: "OUTLAW",
+			borderConfig: {
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:0,
+			y:1,
+			type: "PLANET",
+			alignment: "OUTLAW",
+			specialType: "MISSION",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-1,
+			y:0,
+			type: "ASTEROID"
+		},
+		{
+			x:-1,
+			y:-1
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1,
+			type: "ASTEROID"
+		},
+		{
+			x:2,
+			y:0,
+			type: "PLANET",
+			alignment: "OUTLAW",
+			specialType: "BUY",
+			availableCube: "ANY",
+			borderConfig: {
+				t: true,
+				tr: true,
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:2,
+			y:1,
+			type: "ASTEROID"
+		},
+		{
+			x:1,
+			y:1,
+			type: "ASTEROID"
+		},
+		{
+			x:0,
+			y:2,
+			type: "ASTEROID"
+		},
+		{
+			x:-1,
+			y:1
+		},
+		{
+			x:-2,
+			y:1,
+			specialType: "SPAWN",
+			spawnNumber: 18
+		},
+		{
+			x:-2,
+			y:0,
+			type: "ASTEROID"
+		},
+		{
+			x:-2,
+			y:-1,
+			type: "ASTEROID",
+			specialType: "EXPLORE"
+		},
+		{
+			x:-1,
+			y:-2
+		}
+	]
+});
+
+Xia.tile.KemplarII = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "PLANET",
+			alignment: "LAWFUL"
+		},
+		{
+			x:0,
+			y:-1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			specialType: "BUY",
+			availableCube: "S",
+			borderConfig: {
+				tl: true,
+				t: true
+			}
+		},
+		{
+			x:1,
+			y:-1,
+			type: "PLANET",
+			alignment: "LAWFUL"
+		},
+		{
+			x:1,
+			y:0,
+			type: "PLANET",
+			alignment: "LAWFUL"
+		},
+		{
+			x:0,
+			y:1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			specialType: "SELL",
+			availableCube: "H",
+			borderConfig: {
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:-1,
+			y:0,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-1,
+			y:-1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				bl: true,
+				t: true
+			}
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2,
+			specialType: "MISSION",
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				tl: true,
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:2,
+			y:-1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				t: true,
+				tr: true,
+				br: true
+			}
+		},
+		{
+			x:2,
+			y:0,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				tr: true,
+				br: true
+			}
+		},
+		{
+			x:2,
+			y:1,
+			specialType: "EXPLORE",
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				tr: true,
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:1,
+			y:1,
+			type: "PLANET",
+			alignment: "LAWFUL",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true
+			}
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1
+		},
+		{
+			x:-2,
+			y:1,
+			specialType: "SPAWN",
+			spawnNumber: 2
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1
+		},
+		{
+			x:-1,
+			y:-2
+		}
+	]
+});
+
+Xia.tile.ExpediorGate = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "GATE",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:0,
+			y:-1,
+			type: "GATE",
+			borderConfig: {
+				bl: true,
+				tl: true,
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:1,
+			y:-1,
+			type: "GATE",
+			borderConfig: {
+				t: true,
+				tr: true,
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:1,
+			y:0
+		},
+		{
+			x:0,
+			y:1
+		},
+		{
+			x:-1,
+			y:0
+		},
+		{
+			x:-1,
+			y:-1,
+			specialType: "MISSION"
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1,
+			specialType: "SPAWN",
+			spawnNumber: 10
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1
+		},
+		{
+			x:-2,
+			y:1
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1
+		},
+		{
+			x:-1,
+			y:-2
+		}
+	]
+});
+
+Xia.tile.DeltusGate = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "GATE",
+			borderConfig: {
+				bl: true,
+				tl: true,
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:0,
+			y:-1
+		},
+		{
+			x:1,
+			y:-1,
+			specialType: "MISSION"
+		},
+		{
+			x:1,
+			y:0,
+			type: "GATE",
+			borderConfig: {
+				t: true,
+				tr: true,
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:0,
+			y:1,
+			type: "GATE",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-1,
+			y:0
+		},
+		{
+			x:-1,
+			y:-1
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1
+		},
+		{
+			x:2,
+			y:0
+		},
+		{
+			x:2,
+			y:1
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2
+		},
+		{
+			x:-1,
+			y:1
+		},
+		{
+			x:-2,
+			y:1,
+			specialType: "SPAWN",
+			spawnNumber: 11
+		},
+		{
+			x:-2,
+			y:0
+		},
+		{
+			x:-2,
+			y:-1
+		},
+		{
+			x:-1,
+			y:-2
+		}
+	]
+});
+
+Xia.tile.TigrisGate = new JS.Class(Xia.Tile, {
+	
+	hexConfigs: [
+		{
+			x:0,
+			y:0,
+			type: "GATE",
+			borderConfig: {
+				bl: true,
+				tl: true,
+				t: true,
+				tr: true
+			}
+		},
+		{
+			x:0,
+			y:-1
+		},
+		{
+			x:1,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:1,
+			y:0,
+			type: "GATE",
+			borderConfig: {
+				t: true,
+				tr: true,
+				br: true,
+				b: true
+			}
+		},
+		{
+			x:0,
+			y:1,
+			type: "GATE",
+			borderConfig: {
+				br: true,
+				b: true,
+				bl: true,
+				tl: true
+			}
+		},
+		{
+			x:-1,
+			y:0
+		},
+		{
+			x:-1,
+			y:-1
+		},
+		{
+			x:0,
+			y:-2
+		},
+		{
+			x:1,
+			y:-2
+		},
+		{
+			x:2,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:2,
+			y:0,
+			specialType: "MISSION"
+		},
+		{
+			x:2,
+			y:1,
+			type: "DEBRIS"
+		},
+		{
+			x:1,
+			y:1
+		},
+		{
+			x:0,
+			y:2,
+			specialType: "SPAWN",
+			spawnNumber: 19
+		},
+		{
+			x:-1,
+			y:1
+		},
+		{
+			x:-2,
+			y:1,
+			type: "DEBRIS"
+		},
+		{
+			x:-2,
+			y:0,
+			type: "DEBRIS"
+		},
+		{
+			x:-2,
+			y:-1,
+			type: "DEBRIS"
+		},
+		{
+			x:-1,
+			y:-2,
+			type: "DEBRIS"
+		}
+	]
+});
+
+Xia.tile.createAvailableTiles = function(){
+	Xia.tile.availableTiles = [
+		Xia.tile.Outpost338,
+		Xia.tile.RedGulch,
+		Xia.tile.Tk421,
+		Xia.tile.BurningHorse,
+		Xia.tile.LowerStratus,
+		Xia.tile.Vortex86,
+		Xia.tile.Xia,
+		Xia.tile.LostSector,
+		Xia.tile.KrellerIV,
+		Xia.tile.Pelmont,
+		Xia.tile.TheKeep,
+		Xia.tile.NeoDamascus,
+		Xia.tile.DoravinV,
+		Xia.tile.Azure,
+		Xia.tile.Lunari,
+		Xia.tile.SmugglersDen,
+		Xia.tile.KemplarII,
+		Xia.tile.ExpediorGate,
+		Xia.tile.DeltusGate,
+		Xia.tile.TigrisGate
+	];
+	Xia.shuffle(Xia.tile.availableTiles);
+};

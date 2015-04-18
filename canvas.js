@@ -70,9 +70,6 @@ Xia.canvas.renderCanvas = function(){
     {
         Xia.canvas.c2 = Xia.canvas.canvas[0].getContext('2d');
 		
-		new Xia.tile.DoravinV({x:0, y:0});//0,0
-		new Xia.tile.DoravinV({x:-1, y:0, rotations: 5});//-1, 0
-		
 		Xia.canvas.drawCanvasFrame();
     }
 };

@@ -20,8 +20,8 @@ Xia.getInnerAngleXY = function(hypotenuseRatio){
 //not sure, should I hold the coordinates in the class or in the containing grid that I will need (or both?)
 Xia.Hex = new JS.Class({
 	
-	backgroundColor: "#000",
-	baseBorderColor: "#999",
+	backgroundColor: "#000000",
+	baseBorderColor: "#999999",
 	x: null,
 	y: null,
 	canvasX: null,
@@ -41,18 +41,22 @@ Xia.Hex = new JS.Class({
 		"ASTEROID": "#FF7F24",
 		"NEBULA": "#FF0066",
 		"STAR": "#E60000",
-		"DEBRIS": "#FFFF00"
+		"DEBRIS": "#FFFF00",
+		"GATE": "#7519D1"
 	},
+	
 	alignmentColorMap: {
 		"OUTLAW": "#CC2900",
 		"NEUTRAL": "#00A100",
 		"LAWFUL": "#00B8E6"
 	},
+	
 	alignmentBackgroundColorMap: {
-		"OUTLAW": "#CC2900",
+		"OUTLAW": "#470E00",
 		"NEUTRAL": "#002600",
-		"LAWFUL": "#00B8E6"
+		"LAWFUL": "#0F2E4C"
 	},
+	
 	cubeColorMap: {
 		"S": "#FF8000",
 		"H": "#FF0066",
@@ -132,6 +136,8 @@ Xia.Hex = new JS.Class({
 			c2.fillStyle = "#530000";
 		else if(me.type == "PLANET")
 			c2.fillStyle = me.alignmentBackgroundColorMap[me.alignment];
+		else if(me.type == "GATE")
+			c2.fillStyle = "#290052";
 		
 		c2.strokeStyle = me.baseBorderColor;
 		c2.beginPath();
@@ -269,11 +275,14 @@ Xia.Hex = new JS.Class({
 			c2.fillText(text, x - (textWidth / 2), y - (Xia.hex.canvasHexHeight / 4));
 			textWidth = c2.measureText("1000 CR").width;
 			c2.fillText("1000 CR", x - (textWidth / 2), y);
-			textWidth = c2.measureText("2x P").width;
-			c2.fillText("2x ", x - (textWidth / 2), y + (Xia.hex.canvasHexHeight / 4));
-			var textWidthWithLess = c2.measureText("2x ").width;
+			textWidth = c2.measureText("[2x " + me.availableCube + "]").width;
+			c2.fillText("[2x ", x - (textWidth / 2), y + (Xia.hex.canvasHexHeight / 4));
+			var textWidthWithLess = c2.measureText("[2x ").width;
 			c2.fillStyle = me.cubeColorMap[me.availableCube];
 			c2.fillText(me.availableCube, x - (textWidth / 2) + textWidthWithLess, y + (Xia.hex.canvasHexHeight / 4));
+			textWidthWithLess = c2.measureText("[2x " + me.availableCube).width;
+			c2.fillStyle = "#FFFFFF";
+			c2.fillText("]", x - (textWidth / 2) + textWidthWithLess, y + (Xia.hex.canvasHexHeight / 4));
 			
 		}
 		else if(specialType == "SELL")
@@ -287,11 +296,14 @@ Xia.Hex = new JS.Class({
 			c2.fillText(text, x - (textWidth / 2), y - (Xia.hex.canvasHexHeight / 4));
 			textWidth = c2.measureText("1000 CR").width;
 			c2.fillText("1000 CR", x - (textWidth / 2), y);
-			textWidth = c2.measureText("2x P").width;
-			c2.fillText("1x ", x - (textWidth / 2), y + (Xia.hex.canvasHexHeight / 4));
-			var textWidthWithLess = c2.measureText("2x ").width;
+			textWidth = c2.measureText("[2x " + me.availableCube + "]").width;
+			c2.fillText("[1x ", x - (textWidth / 2), y + (Xia.hex.canvasHexHeight / 4));
+			var textWidthWithLess = c2.measureText("[1x ").width;
 			c2.fillStyle = me.cubeColorMap[me.availableCube];
 			c2.fillText(me.availableCube, x - (textWidth / 2) + textWidthWithLess, y + (Xia.hex.canvasHexHeight / 4));
+			textWidthWithLess = c2.measureText("[2x " + me.availableCube).width;
+			c2.fillStyle = "#FFFFFF";
+			c2.fillText("]", x - (textWidth / 2) + textWidthWithLess, y + (Xia.hex.canvasHexHeight / 4));
 			
 		}
 		else if(specialType == "SPAWN")

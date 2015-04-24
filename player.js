@@ -12,6 +12,7 @@ Xia.player.Player = new JS.Class({
 	
 	ship: null,
 	color: null,
+	money: 3000,
 	
 	initialize: function() {
 		var me = this;

@@ -1,6 +1,7 @@
 var Xia = {};
 
 Xia.playerCount = 5;//this is going to have to be dynamically set by a game start configuration screen
+Xia.currentPlayer = 0;
 
 Xia.rollDice = function(max) {
   return Math.floor(Math.random() * (max)) + 1;
@@ -70,10 +71,21 @@ Xia.createShipTest = function(){
 	});
 };
 
-Xia.gameStart = function(){
-	//alert("Please select your ship");
+Xia.chooseShips = function(){
 	
-	var shipPicker = "<div style=\"width:20%;top:0px;left:0px;position:absolute;bottom:0px;border-right: 5px solid black;overflow:auto;\">";
+	if(Xia.shipPickerToggle)
+		Xia.shipPickerToggle.remove();
+	
+	Xia.shipPickerOuterContainer = $("<div style=\"position:absolute;left:0px;right:0px;top:0px;bottom:0px;background-color:white;\"></div>");
+	
+	Xia.shipPickerToggle = $("<div style=\"position:absolute;left:0px;top:0px;right:0px;height:50px;background-color:white;border-bottom: 5px solid black;text-align:center;\"></div>");
+	Xia.viewGameBoardButton = $("<input style=\"margin-top:14px;\" type=\"button\" value=\"View Game Board\"/>");
+	Xia.viewGameBoardButton.bind("click", Xia.viewGameBoard);
+	Xia.shipPickerToggle.append(Xia.viewGameBoardButton);
+	
+	var shipPickerTitle = $("<div style=\"width:20%;top:50px;left:0px;position:absolute;height:50px;border-right: 5px solid black;border-bottom: 5px solid black;overflow:auto;margin-top:5px;text-align:center;\"><div style=\"margin-top:14px;\">Please Select Your Starting Ship</div></div>");
+	
+	var shipPicker = "<div style=\"width:20%;top:110px;left:0px;position:absolute;bottom:0px;border-right: 5px solid black;overflow:auto;\">";
 	var tier1Ships = Xia.ships.tier1;
 	for(var i = 0; i < tier1Ships.length; i++)
 	{
@@ -85,17 +97,30 @@ Xia.gameStart = function(){
 	
 	Xia.shipPickerContainer = $(shipPicker);
 	Xia.shipPickerContainer.bind("click", Xia.previewStartShip);
-	$(document.body).append(Xia.shipPickerContainer);
 	
-	var shipPreview = "<div style=\"left:20%;top:0px;right:0px;position:absolute;bottom:0px;overflow:auto;\"></div>";
+	var shipPreview = "<div style=\"left:20%;top:50px;right:0px;position:absolute;bottom:0px;overflow:auto;\"></div>";
 	Xia.shipPreviewContainer = $(shipPreview);
-	$(document.body).append(Xia.shipPreviewContainer);
+	
+	$(document.body).append(Xia.shipPickerOuterContainer);
+	Xia.shipPickerOuterContainer.append(shipPickerTitle);
+	Xia.shipPickerOuterContainer.append(Xia.shipPickerToggle);
+	Xia.shipPickerOuterContainer.append(Xia.shipPickerContainer);
+	Xia.shipPickerOuterContainer.append(Xia.shipPreviewContainer);
 	
 };
 
-Xia.previewStartShip = function(something, something2, something3, something4){
+Xia.viewGameBoard = function(){
+	Xia.shipPickerOuterContainer.remove();
+	Xia.shipPickerToggle = $("<div style=\"position:absolute;left:0px;bottom:0px;right:0px;height:50px;background-color:white;border-top: 5px solid black;text-align:center;\"></div>");
+	Xia.viewShipChoiceMenuButton = $("<input style=\"margin-top:14px;\" type=\"button\" value=\"View Ship Choice Menu\"/>");
+	Xia.shipPickerToggle.append(Xia.viewShipChoiceMenuButton);
+	Xia.viewShipChoiceMenuButton.bind("click", Xia.chooseShips);
+	$(document.body).append(Xia.shipPickerToggle);
+};
+
+Xia.previewStartShip = function(e){
 	
-	var shipDiv = $(something.target).closest(".select_tier_1_ship");
+	var shipDiv = $(e.target).closest(".select_tier_1_ship");
 	
 	if(shipDiv.length > 0)
 	{
@@ -116,7 +141,31 @@ Xia.previewStartShip = function(something, something2, something3, something4){
 		
 		Xia.shipPreviewContainer.append(shipImage);
 		Xia.shipPreviewContainer.append(rollOutcomeDiv);
+		
+		var acceptShipButtonContainer = $("<div style=\"margin: 0 auto;width:400px;margin-top:15px;text-align:center;\"></div>");
+		var acceptShipButton = $("<input type=\"button\" value=\"Choose this Ship\" data-shipindex=\"" + shipIndex + "\"/>");
+		acceptShipButton.bind("click", Xia.acceptShip);
+		acceptShipButtonContainer.append(acceptShipButton);
+		Xia.shipPreviewContainer.append(acceptShipButtonContainer);
 	}
+};
+
+Xia.acceptShip = function(e){
+	var shipIndex = $(e.currentTarget).data("shipindex");
+	var shipClass = Xia.ships.tier1[shipIndex];
+	Xia.player.allPlayers[Xia.currentPlayer].setShip(new shipClass({}));
+	
+	Xia.ships.tier1.splice(shipIndex, 1);//remove the ship so it's no longer available for selection
+	
+	Xia.currentPlayer++;
+	if(Xia.currentPlayer < Xia.playerCount)
+		Xia.chooseShips();
+	else
+	{
+		Xia.currentPlayer = 0;
+		//on to next phase of game
+	}
+	
 };
 
 Xia.createRollOutcomeGridDisplay = function(headerText, items){
@@ -224,11 +273,15 @@ Xia.layOutStartingTiles = function()
 
 $(document).ready(function(){
 	
+	//create instances representing each player in the player array
+	for(var i = 0; i < Xia.playerCount; i++)
+		Xia.player.allPlayers.push(new Xia.player.Player);
+	
 	Xia.shuffleThings();
 	
 	Xia.layOutStartingTiles();
 	
-	//Xia.gameStart();
+	Xia.chooseShips();
 	
 	Xia.canvas.renderCanvas();
 	

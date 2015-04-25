@@ -369,12 +369,14 @@ Xia.playerSetup = function(){
 
 Xia.createPlayerDock = function(){
 	//create the bottom middle dock with player ships and info
-	var playerDockWidth = 650;
+	var playerDockWidth = 700;
 	var playerDockHeight = 431;
 	
 	
 	var playerDockContainer = $("<div style=\"position:absolute;bottom:0px;right:0px;width:" + playerDockWidth + "px;height:" + playerDockHeight + "px;background-color:black;border-top: 5px solid #CCCCCC;border-left: 5px solid #CCCCCC;\"></div>");
 	$(document.body).append(playerDockContainer);
+	var playerSelectionContainer = $("<div style=\"position:absolute;top:0px;left:0px;bottom:0px;width:166px;border-right: 5px solid #CCCCCC;\"></div>");
+	playerDockContainer.append(playerSelectionContainer);
 	
 };
 

@@ -153,19 +153,87 @@ Xia.previewStartShip = function(e){
 Xia.acceptShip = function(e){
 	var shipIndex = $(e.currentTarget).data("shipindex");
 	var shipClass = Xia.ships.tier1[shipIndex];
-	Xia.player.allPlayers[Xia.currentPlayer].setShip(new shipClass({}));
+	//Xia.player.allPlayers[Xia.currentPlayer].setShip(new shipClass({}));
 	
 	Xia.ships.tier1.splice(shipIndex, 1);//remove the ship so it's no longer available for selection
+	Xia.shipPickerOuterContainer.remove();//remove the ship picking menu, as it can be rebuilt without the selected ship
 	
-	Xia.currentPlayer++;
-	if(Xia.currentPlayer < Xia.playerCount)
-		Xia.chooseShips();
-	else
+	Xia.chooseColors();
+	
+};
+
+Xia.chooseColors = function(){
+	
+	var colorOptions = Xia.player.colorOptions;
+	var screenHeight = document.body.clientHeight;
+	var screenWidth = document.body.clientWidth;
+	var offsetTop = (screenHeight / 2) - 200;
+	var offsetLeft = (screenWidth / 2) - 200;
+	
+	Xia.colorPickerOuterContainer = $("<div style=\"position:absolute;left:0px;right:0px;top:0px;bottom:0px;\"></div>");
+	var colorPickerContainer = $("<div style=\"position:absolute;left:" + offsetLeft + "px;top:" + offsetTop + "px;width:400px;height:400px;text-align:center;border: 5px solid #CCCCCC;background-color:white;\"></div>");
+	var colorPickerTitle = $("<div style=\"top:0px;left:0px;right:0px;position:absolute;height:50px;border-bottom: 5px solid #CCCCCC;text-align:center;\"><div style=\"margin-top:14px;\">Please Select Your Color</div></div>");
+	
+	var colorPicker = "<div style=\"top:55px;left:0px;right:0px;position:absolute;bottom:55px;overflow:auto;border-bottom: 5px solid #CCCCCC;\">";
+	for(var i = 0; i < colorOptions.length; i++)
 	{
-		Xia.currentPlayer = 0;
-		//on to next phase of game
+		colorPicker += "<div class=\"select_color\" data-colorindex=\"" + i + "\">" + colorOptions[i] + "</div>";
 	}
 	
+	colorPicker += "</div>";
+	var colorPicker = $(colorPicker);
+	colorPicker.bind("click", Xia.selectColor);
+	
+	$(document.body).append(Xia.colorPickerOuterContainer);
+	Xia.colorPickerOuterContainer.append(colorPickerContainer);
+	colorPickerContainer.append(colorPickerTitle);
+	colorPickerContainer.append(colorPicker);
+	
+	var acceptColorButtonContainer = $("<div style=\"position:absolute;bottom:0px;left:0px;right:0px;height:40px;text-align:center;\"></div>");
+	var acceptColorButton = $("<input type=\"button\" value=\"Choose Selected Color\"/>");
+	acceptColorButton.bind("click", Xia.acceptColor);
+	acceptColorButtonContainer.append(acceptColorButton);
+	colorPickerContainer.append(acceptColorButtonContainer);
+	
+};
+
+Xia.selectedColorIndex = null;
+Xia.selectColor = function(e){
+	
+	var colorDiv = $(e.target).closest(".select_color");
+	
+	if(colorDiv.length > 0)
+	{
+		$(e.currentTarget).children().css("background-color","white");
+		colorDiv.css("background-color","lightgray");
+		Xia.selectedColorIndex = colorDiv.data("colorindex");
+	}
+	
+};
+
+Xia.acceptColor = function(){
+	
+	if(Xia.selectedColorIndex != null)
+	{
+		Xia.colorPickerOuterContainer.remove();
+		
+		var selectedColor = Xia.player.colorOptions[Xia.selectedColorIndex];
+		Xia.player.allPlayers[Xia.currentPlayer].setColor(selectedColor);
+		Xia.player.colorOptions.splice(Xia.selectedColorIndex, 1);
+		Xia.selectedColorIndex = null;
+		
+		//this next block will move the cursor to the next player and restart the ship picking process
+		Xia.currentPlayer++;
+		if(Xia.currentPlayer < Xia.playerCount)
+			Xia.chooseShips();
+		else
+		{
+			Xia.currentPlayer = 0;
+			//on to next phase of game
+		}
+	}
+	else
+		alert("You must selected a color");
 };
 
 Xia.createRollOutcomeGridDisplay = function(headerText, items){

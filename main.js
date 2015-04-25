@@ -378,6 +378,13 @@ Xia.createPlayerDock = function(){
 	var playerSelectionContainer = $("<div style=\"position:absolute;top:0px;left:0px;bottom:0px;width:166px;border-right: 5px solid #CCCCCC;\"></div>");
 	playerDockContainer.append(playerSelectionContainer);
 	
+	var allPlayersDisplay = "";
+	for(var i = 0; i < Xia.playerCount; i++)
+	{
+		allPlayersDisplay += "<div class=\"select_player\" data-playerindex=\"" + i + "\">Player " + (i + 1) + "</div>";
+	}
+	playerSelectionContainer.append(allPlayersDisplay);
+	
 };
 
 $(document).ready(function(){

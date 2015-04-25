@@ -158,11 +158,21 @@ Xia.acceptShip = function(e){
 	Xia.ships.tier1.splice(shipIndex, 1);//remove the ship so it's no longer available for selection
 	Xia.shipPickerOuterContainer.remove();//remove the ship picking menu, as it can be rebuilt without the selected ship
 	
-	Xia.chooseColors();
+	//this next block will move the cursor to the next player and restart the ship picking process
+	Xia.currentPlayer++;
 	
+	if(Xia.currentPlayer < Xia.playerCount)
+		Xia.playerSetup();
+	else
+	{
+		Xia.currentPlayer = 0;
+		//on to next phase of game
+	}
 };
 
 Xia.chooseColors = function(){
+	
+	Xia.playerBeginOuterContainer.remove();
 	
 	var colorOptions = Xia.player.colorOptions;
 	var screenHeight = document.body.clientHeight;
@@ -222,15 +232,7 @@ Xia.acceptColor = function(){
 		Xia.player.colorOptions.splice(Xia.selectedColorIndex, 1);
 		Xia.selectedColorIndex = null;
 		
-		//this next block will move the cursor to the next player and restart the ship picking process
-		Xia.currentPlayer++;
-		if(Xia.currentPlayer < Xia.playerCount)
-			Xia.chooseShips();
-		else
-		{
-			Xia.currentPlayer = 0;
-			//on to next phase of game
-		}
+		Xia.chooseShips();
 	}
 	else
 		alert("You must selected a color");
@@ -336,6 +338,26 @@ Xia.layOutStartingTiles = function()
 		
 	}
 	
+};
+
+Xia.playerSetup = function(){
+	
+	var screenHeight = document.body.clientHeight;
+	var screenWidth = document.body.clientWidth;
+	var offsetTop = (screenHeight / 2) - 50;
+	var offsetLeft = (screenWidth / 2) - 200;
+	
+	Xia.playerBeginOuterContainer = $("<div style=\"position:absolute;left:0px;right:0px;top:0px;bottom:0px;\"></div>");
+	var playerBeginTitle = $("<div style=\"top:" + offsetTop + "px;left:" + offsetLeft + "px;position:absolute;height:100px;width:300px;border: 5px solid #CCCCCC;text-align:center;background-color:white;\"><div style=\"margin-top:14px;\">Welcome to the game player: " + (Xia.currentPlayer + 1) + "</div></div>");
+	Xia.playerBeginOuterContainer.append(playerBeginTitle);
+	
+	$(document.body).append(Xia.playerBeginOuterContainer);
+	
+	var acceptColorButtonContainer = $("<div style=\"position:absolute;bottom:0px;left:0px;right:0px;height:40px;text-align:center;\"></div>");
+	var acceptColorButton = $("<input type=\"button\" value=\"Begin Game\"/>");
+	acceptColorButton.bind("click", Xia.chooseColors);
+	acceptColorButtonContainer.append(acceptColorButton);
+	playerBeginTitle.append(acceptColorButtonContainer);
 	
 };
 
@@ -349,7 +371,7 @@ $(document).ready(function(){
 	
 	Xia.layOutStartingTiles();
 	
-	Xia.chooseShips();
+	Xia.playerSetup();
 	
 	Xia.canvas.renderCanvas();
 	

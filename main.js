@@ -340,7 +340,7 @@ Xia.layOutStartingTiles = function()
 	
 };
 
-Xia.playerSetup = function(){
+Xia.displayMessage = function(message, callback){
 	
 	var screenHeight = document.body.clientHeight;
 	var screenWidth = document.body.clientWidth;
@@ -348,16 +348,33 @@ Xia.playerSetup = function(){
 	var offsetLeft = (screenWidth / 2) - 200;
 	
 	Xia.playerBeginOuterContainer = $("<div style=\"position:absolute;left:0px;right:0px;top:0px;bottom:0px;\"></div>");
-	var playerBeginTitle = $("<div style=\"top:" + offsetTop + "px;left:" + offsetLeft + "px;position:absolute;height:100px;width:300px;border: 5px solid #CCCCCC;text-align:center;background-color:white;\"><div style=\"margin-top:14px;\">Welcome to the game player: " + (Xia.currentPlayer + 1) + "</div></div>");
+	var playerBeginTitle = $("<div style=\"top:" + offsetTop + "px;left:" + offsetLeft + "px;position:absolute;height:100px;width:300px;border: 5px solid #CCCCCC;text-align:center;background-color:white;\"><div style=\"margin-top:14px;\">" + message + "</div></div>");
 	Xia.playerBeginOuterContainer.append(playerBeginTitle);
 	
 	$(document.body).append(Xia.playerBeginOuterContainer);
 	
 	var acceptColorButtonContainer = $("<div style=\"position:absolute;bottom:0px;left:0px;right:0px;height:40px;text-align:center;\"></div>");
 	var acceptColorButton = $("<input type=\"button\" value=\"Begin Game\"/>");
-	acceptColorButton.bind("click", Xia.chooseColors);
+	acceptColorButton.bind("click", callback);
 	acceptColorButtonContainer.append(acceptColorButton);
 	playerBeginTitle.append(acceptColorButtonContainer);
+	
+};
+
+Xia.playerSetup = function(){
+	
+	Xia.displayMessage("Welcome to the game player: " + (Xia.currentPlayer + 1), Xia.chooseColors);
+	
+};
+
+Xia.createPlayerDock = function(){
+	//create the bottom middle dock with player ships and info
+	var playerDockWidth = 650;
+	var playerDockHeight = 431;
+	
+	
+	var playerDockContainer = $("<div style=\"position:absolute;bottom:0px;right:0px;width:" + playerDockWidth + "px;height:" + playerDockHeight + "px;background-color:black;border-top: 5px solid #CCCCCC;border-left: 5px solid #CCCCCC;\"></div>");
+	$(document.body).append(playerDockContainer);
 	
 };
 
@@ -371,9 +388,11 @@ $(document).ready(function(){
 	
 	Xia.layOutStartingTiles();
 	
-	Xia.playerSetup();
+	//Xia.playerSetup();
 	
 	Xia.canvas.renderCanvas();
+	
+	Xia.createPlayerDock();
 	
 	
 	

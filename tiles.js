@@ -2,6 +2,76 @@ Xia.tile = {};
 Xia.tile.activeTiles = [];
 Xia.tile.availableTiles = null;
 
+Xia.tile.layOutStartingTiles = function()
+{
+	Xia.tile.activeTiles = [];//clear out the tiles which exist already in the game, this is a setup function
+	Xia.allHex = [];
+	Xia.tile.createAvailableTiles();
+	var lastTilePlaced = null;
+	//initial placement coordinates for tiles in the game setup
+	var placementCoordinates = [
+		{
+			x: 0,
+			y: 0
+		},
+		{
+			x: -1,
+			y: -1
+		},
+		{
+			x: 0,
+			y: -1
+		},
+		{
+			x: 1,
+			y: 0
+		},
+		{
+			x: 1,
+			y: -1
+		}
+	];
+	
+	for(var i = 0; i < Xia.playerCount; i++)
+	{
+		var tileCoordinates = placementCoordinates[i];
+		var tileClass = Xia.tile.availableTiles.pop();
+		if(!lastTilePlaced)
+		{
+			lastTilePlaced = new tileClass({
+				x: tileCoordinates.x,
+				y: tileCoordinates.y
+			});
+		}
+		else
+		{
+			lastTilePlaced = lastTilePlaced.placeConnectedTile(tileCoordinates.x, tileCoordinates.y);
+		}
+		
+		var hexesToCheck = lastTilePlaced.hexes;
+		
+		
+		var isValidTile = false;
+		for(var j = 0; j < hexesToCheck.length; j ++)
+		{
+			var hex = hexesToCheck[j];
+			if(hex.specialType == "SPAWN")
+			{
+				isValidTile = true;
+				break;
+			}
+		}
+		
+		if(!isValidTile)
+		{
+			Xia.tile.layOutStartingTiles();
+			return;
+		}
+		
+	}
+	
+};
+
 Xia.rotateAroundOrigin = function(x, y, steps){
 	xp = (x * Math.cos(Math.PI * steps / 3)) - (y * Math.sin(Math.PI * steps / 3));
 	yp = (x * Math.sin(Math.PI * steps / 3)) + (y * Math.cos(Math.PI * steps / 3));

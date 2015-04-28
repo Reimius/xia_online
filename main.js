@@ -270,80 +270,6 @@ Xia.shuffleThings = function(){
 	Xia.explorationTokens.createStack();
 };
 
-Xia.createPlayers = function(playerCount){
-	//this will do something to instantiate players, not sure how this will work yet
-};
-
-Xia.layOutStartingTiles = function()
-{
-	Xia.tile.activeTiles = [];//clear out the tiles which exist already in the game, this is a setup function
-	Xia.allHex = [];
-	Xia.tile.createAvailableTiles();
-	var lastTilePlaced = null;
-	//initial placement coordinates for tiles in the game setup
-	var placementCoordinates = [
-		{
-			x: 0,
-			y: 0
-		},
-		{
-			x: -1,
-			y: -1
-		},
-		{
-			x: 0,
-			y: -1
-		},
-		{
-			x: 1,
-			y: 0
-		},
-		{
-			x: 1,
-			y: -1
-		}
-	];
-	
-	for(var i = 0; i < Xia.playerCount; i++)
-	{
-		var tileCoordinates = placementCoordinates[i];
-		var tileClass = Xia.tile.availableTiles.pop();
-		if(!lastTilePlaced)
-		{
-			lastTilePlaced = new tileClass({
-				x: tileCoordinates.x,
-				y: tileCoordinates.y
-			});
-		}
-		else
-		{
-			lastTilePlaced = lastTilePlaced.placeConnectedTile(tileCoordinates.x, tileCoordinates.y);
-		}
-		
-		var hexesToCheck = lastTilePlaced.hexes;
-		
-		
-		var isValidTile = false;
-		for(var j = 0; j < hexesToCheck.length; j ++)
-		{
-			var hex = hexesToCheck[j];
-			if(hex.specialType == "SPAWN")
-			{
-				isValidTile = true;
-				break;
-			}
-		}
-		
-		if(!isValidTile)
-		{
-			Xia.layOutStartingTiles();
-			return;
-		}
-		
-	}
-	
-};
-
 Xia.displayMessage = function(message, callback){
 	
 	var screenHeight = document.body.clientHeight;
@@ -400,7 +326,8 @@ Xia.createPlayerDock = function(){
 		if(playerDiv)
 		{
 			var selectedIndex = $(playerDiv).data("playerindex");
-			Xia.shipDockSelect(selectedIndex);
+			if(selectedIndex != null)
+				Xia.shipDockSelect(selectedIndex);
 		}
 		
 	});
@@ -441,13 +368,11 @@ Xia.automatePlayerSetup = function(){
 
 $(document).ready(function(){
 	
-	//create instances representing each player in the player array
-	for(var i = 0; i < Xia.playerCount; i++)
-		Xia.player.allPlayers.push(new Xia.player.Player);
+	Xia.player.createPlayers();
 	
 	Xia.shuffleThings();
 	
-	Xia.layOutStartingTiles();
+	Xia.tile.layOutStartingTiles();
 	
 	Xia.createPlayerDock();
 	

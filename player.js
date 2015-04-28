@@ -35,3 +35,9 @@ Xia.player.Player = new JS.Class({
 	}
 	
 });
+
+Xia.player.createPlayers = function(playerCount){
+	//create instances representing each player in the player array
+	for(var i = 0; i < Xia.playerCount; i++)
+		Xia.player.allPlayers.push(new Xia.player.Player);
+};

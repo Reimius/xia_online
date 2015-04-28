@@ -22,8 +22,16 @@ Xia.player.Player = new JS.Class({
 		this.ship = shipInstance;
 	},
 	
+	getShip: function(){
+		return this.ship;
+	},
+	
 	setColor: function(playerColor){
 		this.color = playerColor;
+	},
+	
+	getColor: function(){
+		return this.color;
 	}
 	
 });

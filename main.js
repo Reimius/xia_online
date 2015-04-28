@@ -153,7 +153,11 @@ Xia.previewStartShip = function(e){
 Xia.acceptShip = function(e){
 	var shipIndex = $(e.currentTarget).data("shipindex");
 	var shipClass = Xia.ships.tier1[shipIndex];
-	//Xia.player.allPlayers[Xia.currentPlayer].setShip(new shipClass({}));
+	var currentPlayerObject = Xia.player.allPlayers[Xia.currentPlayer];
+	currentPlayerObject.setShip(new shipClass({
+		renderTo: $(".player_dock .ship_container").eq(Xia.currentPlayer),
+		playerColor: currentPlayerObject.getColor()
+	}));
 	
 	Xia.ships.tier1.splice(shipIndex, 1);//remove the ship so it's no longer available for selection
 	Xia.shipPickerOuterContainer.remove();//remove the ship picking menu, as it can be rebuilt without the selected ship
@@ -363,6 +367,7 @@ Xia.displayMessage = function(message, callback){
 
 Xia.playerSetup = function(){
 	
+	Xia.shipDockSelect(Xia.currentPlayer);
 	Xia.displayMessage("Welcome to the game player: " + (Xia.currentPlayer + 1), Xia.chooseColors);
 	
 };
@@ -373,18 +378,65 @@ Xia.createPlayerDock = function(){
 	var playerDockHeight = 431;
 	
 	
-	var playerDockContainer = $("<div style=\"position:absolute;bottom:0px;right:0px;width:" + playerDockWidth + "px;height:" + playerDockHeight + "px;background-color:black;border-top: 5px solid #CCCCCC;border-left: 5px solid #CCCCCC;\"></div>");
+	var playerDockContainer = $("<div class=\"player_dock\" style=\"width:" + playerDockWidth + "px;height:" + playerDockHeight + "px;\"></div>");
 	$(document.body).append(playerDockContainer);
-	var playerSelectionContainer = $("<div style=\"position:absolute;top:0px;left:0px;bottom:0px;width:166px;border-right: 5px solid #CCCCCC;\"></div>");
+	var playerSelectionContainer = $("<div class=\"player_list\" style=\"\"></div>");
+	var shipDiagramContainer = $("<div style=\"position:absolute;top:0px;left:171px;bottom:0px;right:0px;\"></div>");
 	playerDockContainer.append(playerSelectionContainer);
+	playerDockContainer.append(shipDiagramContainer);
 	
 	var allPlayersDisplay = "";
+	var playerShipContainers = "";
 	for(var i = 0; i < Xia.playerCount; i++)
 	{
 		allPlayersDisplay += "<div class=\"select_player\" data-playerindex=\"" + i + "\">Player " + (i + 1) + "</div>";
+		playerShipContainers += "<div class=\"ship_container ship_" + i + "\"></div>";
 	}
 	playerSelectionContainer.append(allPlayersDisplay);
 	
+	playerSelectionContainer.bind("click", function(e){
+		
+		var playerDiv = $(e.target).closest(".select_player");
+		if(playerDiv)
+		{
+			var selectedIndex = $(playerDiv).data("playerindex");
+			Xia.shipDockSelect(selectedIndex);
+		}
+		
+	});
+	
+	shipDiagramContainer.append(playerShipContainers);
+	
+	Xia.shipDockSelect(0);
+	
+};
+
+Xia.shipDockSelect = function(displayIndex){
+	
+	var selectionPanel = $(".player_dock .select_player");
+	
+	
+	selectionPanel.css("background-color","black");
+	selectionPanel.eq(displayIndex).css("background-color","rgb(42, 42, 42)");
+	
+	$(".player_dock .ship_container").css("display", "none");
+	
+	$(".player_dock .ship_container").eq(displayIndex).css("display", "block");
+};
+
+//automatically picks ships and colors for players
+Xia.automatePlayerSetup = function(){
+	var allPlayers = Xia.player.allPlayers;
+	
+	for(var i = 0; i < allPlayers.length; i++)
+	{
+		allPlayers[i].setColor(Xia.player.colorOptions.pop());
+		var shipClass = Xia.ships.tier1.pop();
+		allPlayers[i].setShip(new shipClass({
+			renderTo: $(".player_dock .ship_container").eq(i),
+			playerColor: allPlayers[i].getColor()
+		}));
+	}
 };
 
 $(document).ready(function(){
@@ -397,11 +449,12 @@ $(document).ready(function(){
 	
 	Xia.layOutStartingTiles();
 	
+	Xia.createPlayerDock();
+	
 	//Xia.playerSetup();
+	Xia.automatePlayerSetup();
 	
 	Xia.canvas.renderCanvas();
-	
-	Xia.createPlayerDock();
 	
 	
 	

@@ -116,6 +116,7 @@ Xia.outfits.Outfit = new JS.Class({
 		//figure out what the image height and width should be based on the configuration matrix
 		me.imageWidth = me.layouts[0].layout[0].length * 42;
 		me.imageHeight = me.layouts[0].layout.length * 42;
+		me.imageSrc = "image/" + me.name + ".png";
 	},
 	
 	//this function will find the valid layout for this class based on a matrix representing what a user selected on the cargo hold diagram
@@ -181,11 +182,31 @@ Xia.outfits.Outfit = new JS.Class({
 
 });
 
+Xia.outfits.M22Engine = new JS.Class(Xia.outfits.Outfit, {
+	name:     "engine_m22",
+	type:     "ENGINE",
+	price:    1000,
+	dice:     6,
+	layouts: createAllLayouts([
+		["USE", "USE"],
+		[null, "USE"]
+	])
+});
+
+Xia.outfits.HalonEngine = new JS.Class(Xia.outfits.Outfit, {
+	name:     "engine_halon",
+	type:     "ENGINE",
+	price:    2000,
+	dice:     8,
+	layouts: createAllLayouts([
+		[null, "USE", "BLANK"],
+		["USE", "USE", null]
+	])
+});
+
 Xia.outfits.RaptorKEngine = new JS.Class(Xia.outfits.Outfit, {
-	name:      "raptor_k_engine",
-	name:     "raptor_k_engine",
-	type:     "MOVEMENT",
-	imageSrc: "image/engine_raptor_k.gif",
+	name:     "engine_raptor_k",
+	type:     "ENGINE",
 	price:    3000,
 	dice:     12,
 	layouts: createAllLayouts([
@@ -193,6 +214,92 @@ Xia.outfits.RaptorKEngine = new JS.Class(Xia.outfits.Outfit, {
 		[null, "USE", "USE"]
 	])
 });
+
+Xia.outfits.NockBlaster = new JS.Class(Xia.outfits.Outfit, {
+	name:     "blaster_nock",
+	type:     "BLASTER",
+	price:    1000,
+	dice:     6,
+	layouts: createAllLayouts([
+		["BLANK", "USE"],
+		[null, "USE"]
+	])
+});
+
+Xia.outfits.SakerVBlaster = new JS.Class(Xia.outfits.Outfit, {
+	name:     "blaster_saker_v",
+	type:     "BLASTER",
+	price:    2000,
+	dice:     8,
+	layouts: createAllLayouts([
+		["BLANK", "BLANK"],
+		["USE", null],
+		["USE", null]
+	])
+});
+
+Xia.outfits.BasiliskBlaster = new JS.Class(Xia.outfits.Outfit, {
+	name:     "blaster_saker_v",
+	type:     "BLASTER",
+	price:    3000,
+	dice:     12,
+	layouts: createAllLayouts([
+		["BLANK", "BLANK", "BLANK"],
+		["USE", null, null],
+		["USE", null, null]
+	])
+});
+
+Xia.outfits.TargeShield = new JS.Class(Xia.outfits.Outfit, {
+	name:     "shield_targe",
+	type:     "SHIELD",
+	price:    1000,
+	dice:     6,
+	layouts: createAllLayouts([
+		["BLANK", "USE", "USE"]
+	])
+});
+
+Xia.outfits.ZuluIiShield = new JS.Class(Xia.outfits.Outfit, {
+	name:     "shield_zulu_ii",
+	type:     "SHIELD",
+	price:    2000,
+	dice:     8,
+	layouts: createAllLayouts([
+		["BLANK", "USE", "USE"],
+		[null, "USE", null]
+	])
+});
+
+Xia.outfits.BastionShield = new JS.Class(Xia.outfits.Outfit, {
+	name:     "shield_bastion",
+	type:     "SHIELD",
+	price:    3000,
+	dice:     12,
+	layouts: createAllLayouts([
+		[null, "USE", null],
+		["BLANK", "BLANK", "USE"],
+		[null, "USE", null]
+	])
+});
+
+Xia.outfits.engines = [
+	Xia.outfits.M22Engine,
+	Xia.outfits.HalonEngine,
+	Xia.outfits.RaptorKEngine
+];
+
+Xia.outfits.blasters = [
+	Xia.outfits.NockBlaster,
+	Xia.outfits.SakerVBlaster,
+	Xia.outfits.BasiliskBlaster
+];
+
+Xia.outfits.shields = [
+	Xia.outfits.TargeShield,
+	Xia.outfits.ZuluIiShield,
+	Xia.outfits.BastionShield
+];
 
 Xia.outfits.init = function(){
 	//not sure if I need an init for this page yet
